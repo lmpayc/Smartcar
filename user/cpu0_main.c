@@ -34,6 +34,7 @@
 ********************************************************************************************************************/
 #include "zf_common_headfile.h"
 #pragma section all "cpu0_dsram"
+#include "user_headfile.h"
 #include "image_process.h"
 #include "all_param.h"
 #include "pid.h"
@@ -82,29 +83,39 @@ int core0_main(void)
     // 此处编写用户代码 例如外设初始化代码等
 
 
-    tft180_set_dir(TFT180_CROSSWISE);    // 需要先横屏 不然显示不下
-    tft180_init();
-    mt9v03x_init();
+   tft180_set_dir(TFT180_CROSSWISE);    // 需要先横屏 不然显示不下
 
-    pit_ms_init(CCU60_CH0,10);
-    pit_ms_init(CCU60_CH1,30);
+    mt9v03x_init();
+    tft180_init();
+
 
 
 
     pwm_init( ATOM0_CH2_P21_4,50,710);
     pwm_init( ATOM0_CH1_P33_9,50,710);
-    pwm_init( ATOM0_CH0_P21_2,17000,100);
-    pwm_init( ATOM0_CH1_P21_3,17000,100);
+
+
+
+    pwm_init( ATOM0_CH1_P21_3,17000,100);  //左轮
+    pwm_init( ATOM0_CH3_P21_5,17000,100);
+
+    pwm_init( ATOM0_CH6_P02_6,17000,100);  //右轮
+    pwm_init( ATOM0_CH4_P02_4,17000,100);
+
+    pit_ms_init(CCU60_CH0,5);
+    pit_ms_init(CCU60_CH1,30);
+
     int page=0;   //当前页面
     int row=1;    //当前行
     int flag=0;    //当前模式
 
     wireless_uart_init();
-    encoder_dir_init(TIM5_ENCODER,TIM5_ENCODER_CH1_P10_3,TIM5_ENCODER_CH2_P10_1);
-
+//    encoder_dir_init(TIM6_ENCODER,TIM6_ENCODER_CH1_P20_3,TIM6_ENCODER_CH2_P20_0);  //左编码器
+//    encoder_dir_init(TIM2_ENCODER,TIM2_ENCODER_CH1_P33_7,TIM2_ENCODER_CH2_P33_6);   //有编码器
+    EncoderInit();
 
     init_data();
-  //  try_data();
+   //  try_data();
 
     // 此处编写用户代码 例如外设初始化代码等
 	cpu_wait_event_ready();         // 等待所有核心初始化完毕
@@ -112,7 +123,7 @@ int core0_main(void)
 	{
         // 此处编写需要循环执行的代码
 
-	    Vofa_1data(speed);
+	    Vofa_2data(LEFT_SPEED,RIGHT_SPEED);
 
 
 	    if(!page){

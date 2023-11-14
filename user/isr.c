@@ -33,6 +33,7 @@
 * 2022-09-15       pudding            first version
 ********************************************************************************************************************/
 #include "zf_common_headfile.h"
+#include "user_headfile.h"
 #include "all_define.h"
 #include "image_process.h"
 #include "pid.h"
@@ -47,8 +48,8 @@
 IFX_INTERRUPT(cc60_pit_ch0_isr, 0, CCU6_0_CH0_ISR_PRIORITY)
 {
     interrupt_global_enable(0);                     // 开启中断嵌套
-    get_speed();
-    moto_output();
+
+    motor_speed_set();
     pit_clear_flag(CCU60_CH0);
 
     
@@ -62,9 +63,9 @@ IFX_INTERRUPT(cc60_pit_ch1_isr, 0, CCU6_0_CH1_ISR_PRIORITY)
     Downsampling();  //下采样
     otsu();   //大津法
     Pixle_Filter();  //图像降噪
-    longest_white();   //最长白列搜索（包含计算误差
+    center_line=longest_white();   //最长白列搜索
 
-    get_edge();
+    get_edge();   //搜寻边界
     caluate_err();
     servo_output();
 

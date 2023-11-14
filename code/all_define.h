@@ -25,10 +25,10 @@
 #define SEARCH_RIGHT MT9V03X_DVP_W-1*/
 
 /******************************°´¼üÏà¹Ø*******************************/
-#define KEY1    (P20_6)
-#define KEY2    (P20_7)
-#define KEY3    (P11_2)
-#define KEY4    (P11_3)
+#define KEY1    (P22_0)
+#define KEY2    (P22_1)
+#define KEY3    (P22_2)
+#define KEY4    (P22_3)
 
 
 

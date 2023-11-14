@@ -123,7 +123,8 @@ void change_int(int page,int row)   //ÐÞ¸ÄÊý¾Ý
                     while(1){
 
                         key_judge();
-                        tft180_draw_line((line-1)*8+72,(row-1)*32+15,(line-1)*8+76,(row-1)*32+15,RGB565_RED);
+                        tft180_draw_line((line-1)*8+82,(row-1)*32+15,(line-1)*8+86,(row-1)*32+15,RGB565_RED);
+
                         page_show(page);
                         row_show(row);
 
@@ -208,7 +209,7 @@ void show_int(int k,int high)    //´òÓ¡Êý×Ö  k:²ÎÊýÐòºÅ,±íÊ¾µÚk¸ö²ÎÊý  high£º×Ý×
     seperate_int(k);
     for (i=0;i<5;i++)
     {
-       tft180_show_int((uint16)(70+i*8), (uint16)high, x[k][i], (uint8)1);
+       tft180_show_int((uint16)(80+i*8), (uint16)high, x[k][i], (uint8)1);
     }
 }
 
@@ -223,9 +224,9 @@ void page_show(int page)
     else if (page == 1)
     {
         tft180_show_string(10, 0, "duty:");
-        tft180_show_string(10, 32, "kp:");
-        tft180_show_string(10, 64, "ki:");
-        tft180_show_string(10, 96, "kd:");
+        tft180_show_string(10, 32, "dir_kp1:");
+        tft180_show_string(10, 64, "dir_kd1:");
+        tft180_show_string(10, 96, "dir_kp2:");
         for(i=0;i<4;i++)
                 {
                     show_int((page-1)*4+i, i*32);
@@ -234,10 +235,10 @@ void page_show(int page)
     }
     else if (page == 2)
     {
-        tft180_show_string(10, 0, "psta_r:");
-        tft180_show_string(10, 32, "pend_r:");
-        tft180_show_string(10, 64, "par7:");
-        tft180_show_string(10, 96, "par8:");
+        tft180_show_string(10, 0, "dir_kd2:");
+        tft180_show_string(10, 32, "spd_kp1:");
+        tft180_show_string(10, 64, "spd_ki1:");
+        tft180_show_string(10, 96, "spd_kd1:");
         for(i=0;i<4;i++)
                         {
                             show_int((page-1)*4+i, i*32);
@@ -247,7 +248,7 @@ void page_show(int page)
     }
     else if (page == 3)
     {
-        tft180_show_string(10, 0, "par9:");
+        tft180_show_string(10, 0, "spd_exp:");
         tft180_show_string(10, 32, "par10:");
         tft180_show_string(10, 64, "par11:");
         tft180_show_string(10, 96, "par12:");

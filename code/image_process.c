@@ -9,6 +9,10 @@ uint8 end_row =5;      //搜线截止行
 uint8 pro_start_row=60; //前瞻开始行
 uint8 pro_end_row=54;
 
+uint8 found_num=63;//找到的有效行数，最长白列最高点所在的行数
+uint8 found_flag=0; //有效行判断标志
+
+
 uint8  Left_Line[bin_image_H];    //左右边界
 uint8  Right_Line[bin_image_H];
 uint8 midline_pre[64];    //计算中线
@@ -401,13 +405,20 @@ uint8 longest_white(){
 
 void get_edge(){
     int i;
-      static int16 j_l;//记录上一次边线位置
-      static int16 j_r;
+    static int16 j_l;//记录上一次边线位置
+    static int16 j_r;
 
-      int temp1=63;
-      int temp2=63;
+
+    int temp1=63;
+    int temp2=63;
+
+    found_num=63;//重置有效行和标志位
+    found_flag=1;
+
+
+
+
       //从上一次的中点往两边搜,起始行为最近处的一行（第64行）
-
         for(i = start_row;i >= end_row;i--)
            {
              if(i == start_row)
@@ -499,13 +510,14 @@ void get_edge(){
                 }
              }
 
-              /*g_road_width[i]=abs((int)(g_right_edge[i]-g_left_edge[i]));  //路宽有关
-             if( found_flag==1&&g_image_64x128[i][centerline]==1)
+              //g_road_width[i]=abs((int)(g_right_edge[i]-g_left_edge[i]));  //路宽有关
+
+             if( found_flag==1&&bin_image[i][center_line]==255)
                found_num=i;
-             if(g_image_64x128[i][centerline]==0)
+             if(bin_image[i][center_line]==0)
              found_flag=0;
              if(found_num<5)
-               found_num=5;*/
+               found_num=5;
            }
             get_center();
 }

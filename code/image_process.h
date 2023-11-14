@@ -18,7 +18,12 @@ extern uint8  Left_Line[64];    //左右边界
 extern uint8  Right_Line[64];
 extern uint8 midline_pre[64];       //计算中线
 
-extern uint8 center_line;    //理论中心线
+extern uint8 found_num;//找到的有效行数，最长白列最高点所在的行数
+extern uint8 found_flag;
+
+
+
+extern uint8 center_line;    //理论中心线（即最长白列所在列）
 
 
 extern float g_image_err;    //平均误差
