@@ -22,21 +22,21 @@ int32 g_right_spd_output_d=0;
 
 
 void motor_speed_set(){   //速度闭环
-    int g_spd_p1=0;
-    int g_spd_i1=0;
-    int g_spd_p2=0;
-    int g_spd_i2=0;
-    int g_spd_d1=0;
-    int g_spd_d2=0;
+    float g_spd_p1=0;
+    float g_spd_i1=0;
+    float g_spd_p2=0;
+    float g_spd_i2=0;
+    float g_spd_d1=0;
+    float g_spd_d2=0;
 
     int32 left_set_speed=0;           //期待速度转换成的脉冲数
     int32 right_set_speed=0;
     int spd_exp;
 
 
-    g_spd_p1=(int32)data[5]/10;   //从扇区读入kp，ki，kd   //小数点后一位
-    g_spd_i1=(int32)data[6]/10;
-    g_spd_d1=(int32)data[7]/10;
+    g_spd_p1=(float)data[5]/100;   //从扇区读入kp，ki，kd   //小数点后一位
+    g_spd_i1=(float)data[6]/100;
+    g_spd_d1=(float)data[7]/100;
       /*g_spd_p2=temp_para.speed_kp2;   //第二套PID
     g_spd_i2=temp_para.speed_ki2;
     g_spd_d2=temp_para.speed_kd2;*/
@@ -129,6 +129,7 @@ void motor_output(int32 lMotorDuty, int32 rMotorDuty){
 
     pwm_set_duty( ATOM0_CH6_P02_6,right_out1);
     pwm_set_duty( ATOM0_CH4_P02_4,right_out2);//右电机控制
+
 
 
 }
