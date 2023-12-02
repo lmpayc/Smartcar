@@ -16,19 +16,37 @@ uint8 found_flag=0; //有效行判断标志
 uint8  Left_Line[bin_image_H];    //左右边界
 uint8  Right_Line[bin_image_H];
 uint8 midline_pre[64];    //计算中线
-uint8 Search_Stop_Line;  //搜索截至行
+uint8 g_midline[64];
+
+uint8 g_road_width[64]={0};//路宽
+uint8 g_last_road_width[64]={0};//上次路宽
+
+uint8 Search_Stop_Line;  //搜索截至行,最长白列的最高点所在行数
 
 uint8 center_line=63;    //理论中心线为63
 
 
+uint8 left_point=63;    //十字转折点
+uint8 right_point=63;
+
+float left_Correlation=0.0;   //左右边界相关系数
+float right_Correlation=0.0;
 
 
-
- float g_image_err =0 ;
+ float g_image_err =0 ;    //当前误差
  float g_iamge_last_err=0; //上次误差
+ float g_lastimg_err[5]={0};  //记录5次误差，4为当前误差，误差也要做限幅
 
 
 
+ const int row_road_width[64]=
+ {
+  21, 22, 23, 25, 25, 27, 27, 28, 29, 31, 31, 32, 34, 34,
+  36, 37, 38, 39, 40, 42, 42, 44, 45, 45, 47, 49, 49, 51,
+  51, 51, 53, 54, 55, 56, 57, 57, 59, 61, 61, 61, 63, 65,
+  65, 67, 69, 69, 70, 72, 72, 74, 75, 76, 78, 78, 79, 80,
+  82, 83, 83, 85, 87, 87, 89, 89
+ };
 
 
 
@@ -81,8 +99,7 @@ int otsu()   //大津法
     int Threshold = 0;
     uint8 HistoGram[256];
 
-
-
+/*
     for (j = 0; j < 256; j++)  HistoGram[j] = 0; //初始化灰度直方图
 
     for (j = 0; j < bin_image_H; j++)
@@ -145,6 +162,10 @@ int otsu()   //大津法
         }
 
 
+
+*/
+    Threshold=data[15];
+
         for (i = 0; i < bin_image_H; i++) {
                 for (j = 0; j < bin_image_W; j++) {
                     if (bin_image[i][j] <= Threshold) {
@@ -160,23 +181,25 @@ int otsu()   //大津法
 
 
 
-/*void img_bin(uint8 image_binary[bin_image_H][bin_image_W]){
-    for (int i = 0; i < bin_image_H; i++) {
-          for (int j = 0; j < bin_image_W; j++) {
-              if (image_binary[i][j] <= otsu(image_binary)) {
-                  bin_image[i][j] = 0;
+void image_sperate(){
+    int Threshold =253;
+    for (int i = 0; i < MT9V03X_H; i++) {
+          for (int j = 0; j < MT9V03X_W; j++) {
+              if (mt9v03x_image[i][j] <= Threshold) {
+                  mt9v03x_image[i][j] = 0;
               } else {
-                  bin_image[i][j] = 255;
+                  mt9v03x_image[i][j] = 255;
               }
           }
       }
-}*/
+}
+
 /************************************
   * @brief    过滤噪点
   * @param
   * @return
   * @note
-  * @date     2022/11/2 Thur
+  * @date     2023/11/2 Thur
  ************************************/
 void Pixle_Filter()
 {
@@ -225,10 +248,7 @@ uint8 longest_white(){
      uint8 pro_end_row;*/
 
 
-     uint8 wet_sum=0;
 
-     int16 error_sum=0;
-     //float error=0;
 
      for(j=0;j<bin_image_W;j++){       //白列长度置零
       White_Column[j]=0;
@@ -286,80 +306,11 @@ uint8 longest_white(){
 
 
 
-     /*   for (i = start_row; i >end_row; i--)//搜左右边界线
-            {
-            //从最下面一行，访问到有效是视野行
-            for (j = Longest_White_Column_l_j; j <= bin_image_W-1; j++) //
-            {
-                if (bin_image[i][j] ==255 && bin_image[i][j + 1] == 0 )//白黑黑，找到右边界
-                {
-                     right_border = j;
 
-                    break;
-                }
-                else if(j>=bin_image_W-1)//没找到右边界，把屏幕最右赋值给右边界   //
-                {
-                    right_border = j;
-
-                    break;
-                }
-            }
-
-
-            for (j = Longest_White_Column_l_j; j >= 1 ; j--)//往左边扫描
-            {//从最下面一行，访问到我的有效是视野行
-                if (bin_image[i][j] ==255 && bin_image[i][j - 1] == 0 )//黑黑白认为到达左边界
-                {
-                    left_border = j;
-
-                    break;
-                }
-                else if(j<=1)
-                {
-                    left_border = j;//找到头都没找到边，就把屏幕最左右当做边界
-
-                    break;
-                }
-            }
-            Left_Line [i] = left_border;       //左边线线数组
-            Right_Line[i] = right_border;      //右边线线数组
-        }
-
-
-
-        for(i=start_row;i>=end_row;i--){
-              midline[i]=(Left_Line [i]+Right_Line [i])/2;     //中线
-
-       }
-
-
-
-       for(i=start_row;i>end_row;i--){
-            for(j=2;j<bin_image_W-3;j++){
-
-                if(j==Left_Line [i]){
-                    bin_image[i][j-1]=4;     //左边界
-
-
-                }
-
-
-                if(j==midline[i]){
-                    bin_image[i][j]=4;        //red中线
-                }
-
-                if(j==Right_Line [i]){
-                    bin_image[i][j+1]=4;       //red右边界
-
-                    break;
-                }
-            }
-        }
-*/
 
 
        Search_Stop_Line= 60-Longest_White_Column_l_len;
-       if(Search_Stop_Line<0) Search_Stop_Line=0;
+       if(Search_Stop_Line<=5) Search_Stop_Line=5;
 
        for(i=start_row;i>Search_Stop_Line;i--){
            for(j=0;j<bin_image_W;j++){
@@ -419,8 +370,7 @@ void get_edge(){
 
 
       //从上一次的中点往两边搜,起始行为最近处的一行（第64行）
-        for(i = start_row;i >= end_row;i--)
-           {
+      for(i = start_row;i >= end_row;i--){
              if(i == start_row)
              {
                 for(j_l = center_line; j_l >= 1; j_l--)
@@ -510,75 +460,364 @@ void get_edge(){
                 }
              }
 
-              //g_road_width[i]=abs((int)(g_right_edge[i]-g_left_edge[i]));  //路宽有关
+
+
+              g_last_road_width[i]=g_road_width[i];
+              g_road_width[i]=abs((int)(Right_Line[i]-Left_Line[i]));   //更新路宽
 
              if( found_flag==1&&bin_image[i][center_line]==255)
-               found_num=i;
+               found_num=i;                    //就是在找最长白列的最高点
              if(bin_image[i][center_line]==0)
-             found_flag=0;
+             found_flag=0;      //
              if(found_num<5)
                found_num=5;
-           }
-            get_center();
+       }
+
+              Correlation_get();     //左右边界相关系数判定
+
+             // crossroad_pass();      //十字补线
+               // island_pass();
+              get_center();   //计算得到的图像中线
+
 }
 
 void get_center(){
     int i,j;
     for(i=start_row;i>=end_row;i--){
         midline_pre[i]=(Left_Line [i]+Right_Line [i])/2;     //中线
-           }
+ }
 
+  centerline_change();//补中线
+  MedianFilter( midline_pre,g_midline,3);  //中线滤波
+
+
+
+
+
+    //屏幕显示
     for(i=start_row;i>end_row;i--){
                for(j=2;j<bin_image_W-3;j++){
-
                    if(j==Left_Line [i]){
                        bin_image[i][j-1]=4;     //左边界
-
-
                    }
-
-
                    if(j==midline_pre[i]){
                        bin_image[i][j]=4;        //red中线
                    }
-
                    if(j==Right_Line [i]){
                        bin_image[i][j+1]=4;       //red右边界
-
                        break;
                    }
                }
            }
 }
 
+void centerline_change()//补中线
+{
+    int i;
+    if(LOST_RIGHT_FLAG==FLAG_ON&&in_left_stock==FLAG_OFF&&in_right_stock==FLAG_OFF)
+      {
+         for(i = start_row;i >= end_row;i--)
+        {
+          //if(g_road_width[i]>row_road_width[i]+10){
+              midline_pre[i]=row_road_width[i]/2+Left_Line[i];
+         // }
+         }
+      }
+
+    if(LOST_LEFT_FLAG==FLAG_ON&&in_left_stock==FLAG_OFF&&in_right_stock==FLAG_OFF)
+         {
+            for(i = start_row;i >= end_row;i--)
+           {
+             //if(g_road_width[i]>row_road_width[i]+10){
+                 midline_pre[i]=Right_Line[i]-row_road_width[i]/2;
+            // }
+            }
+         }
+}
+
+
+unsigned char GetMedianNum(uint8 * bArray, uint8 iFilterLen)//获取中值
+{
+    uint8 i,j;// 循环变量
+    uint8 bTemp;
+
+    // 用冒泡法对数组进行排序
+    for (j = 0; j < iFilterLen - 1; j ++)
+    {
+        for (i = 0; i < iFilterLen - j - 1; i ++)
+        {
+            if (bArray[i] > bArray[i + 1])
+            {
+                // 互换
+                bTemp = bArray[i];
+                bArray[i] = bArray[i + 1];
+                bArray[i + 1] = bTemp;
+            }
+        }
+    }
+
+    // 计算中值
+    if ((iFilterLen & 1) > 0)
+    {
+        // 数组有奇数个元素，返回中间一个元素
+        bTemp = bArray[(iFilterLen + 1) / 2];
+    }
+    else
+    {
+        // 数组有偶数个元素，返回中间两个元素平均值
+        bTemp = (bArray[iFilterLen / 2] + bArray[iFilterLen / 2 + 1]) / 2;
+    }
+    return bTemp;
+}
+
+void MedianFilter( uint8*line_pre,uint8 *line_now,uint8 Width)//中值滤波
+{
+   uint8  *lpSrc;                           // 指向源中线的指针
+   uint8  *lpDst;                           // 指向要复制区域的指针
+   uint8 i;
+   for(i =end_row;i<=start_row; i++)
+  {
+   lpSrc=line_pre+i;
+   lpDst=line_now+i;
+    *lpDst=*lpSrc;
+  }
+  for(i = end_row+Width;i<start_row-Width; i+=Width)
+  {
+     lpSrc=line_pre+i-Width/2;
+     lpDst=line_now+i;
+     *lpDst=GetMedianNum(lpSrc, Width);
+  }
+}
+
+
+
+
+
+
+
 void caluate_err(){
     int i,j;
-    uint8 wet_sum=0;
+    uint8 wet_sum=1;
     int16 error_sum=0;
 
+    /*前瞻行设定*/
+    pro_end_row=Search_Stop_Line;       //前瞻结束选在截止行下面
+    if(pro_end_row<40) pro_end_row=40;                 //前瞻行阈值设定
 
-          pro_end_row=Search_Stop_Line+2;       //前瞻结束选在截止行下面一些
-          if(pro_end_row<25) pro_end_row=25;                 //前瞻行阈值设定
-          pro_start_row=pro_end_row+6;
-          if(pro_start_row>60) pro_start_row=60;
+     pro_start_row=pro_end_row+7;
+    if(pro_start_row>63) pro_start_row=63;
+
+    if(CROSSROAD_FLAG==FLAG_ON){              //遇到十字就把前瞻行刚在十字上面
+        if(pro_start_row>left_point)  pro_start_row=left_point;
+        pro_end_row=pro_start_row-7;
+    }
 
 
-          for(i=pro_start_row;i>=pro_end_row;i--){   //计算误差（i为前瞻行）
-             // bin_image[i][bin_image_W/2]=3;
-               error_sum+=(63-midline_pre[i])*(Right_Line[i]-Left_Line[i]);
-               wet_sum+=Right_Line[i]-Left_Line[i];
-           }
 
-           g_image_err=(float)error_sum/(wet_sum);
-          // tft180_show_float(0,0 ,g_image_err,3,1);
 
-          for(j=0;j<bin_image_W;j++){   //显示前瞻行
+    for(i=pro_start_row;i>=pro_end_row;i--){   //计算误差（i为前瞻行）
+
+          error_sum+=(63-midline_pre[i])*(Right_Line[i]-Left_Line[i]);  //在这里修改中线滤波后的数组
+           wet_sum+=Right_Line[i]-Left_Line[i];
+       }
+
+      g_image_err=(float)((float)(error_sum)/(float)(wet_sum));
+
+
+      /*更新误差*/
+       g_lastimg_err[0]=g_lastimg_err[1];
+       g_lastimg_err[1]=g_lastimg_err[2];
+       g_lastimg_err[2]=g_lastimg_err[3];
+       g_lastimg_err[3]=g_lastimg_err[4];
+       g_lastimg_err[4]=g_image_err;
+
+       g_image_err=(g_lastimg_err[4]+g_lastimg_err[3]+g_lastimg_err[2]+g_lastimg_err[1])/4.0;
+
+
+      /*误差限幅*/
+
+
+
+     for(j=0;j<bin_image_W;j++){   //显示前瞻行
               bin_image[pro_start_row][j]=3;
               bin_image[pro_end_row][j]=3;
           }
+}
+
+float limit(float x,float min,float max){
+    if(x<min) x=min;
+    if(x>max) x=max;
+    return x;
+}
+
+void crossroad_pass()//十字补线(位于搜边界的最后，对边界重新处理)
+{
+    uint8 i;
+    uint8 leftnear_row = 63;      //第一个左转折点(靠近车的点)
+    uint8 leftfar_row = 63;       //第二个左转折点
+    uint8 leftfar_flag =  FLAG_OFF;     //两个转折点是否都找到标志
+    uint8 rightfar_flag = FLAG_OFF;
+    uint8 leftnear_flag = FLAG_OFF;    //第二个转折点开启标志
+    uint8 rightnear_flag = FLAG_OFF;
+    uint8 rightnear_row = 63;
+    uint8 rightfar_row = 63;
+
+
+   //crossin_flag=FLAG_ON;
+    if(crossin_flag==FLAG_ON){
+    //左边界搜折点
+    for(i = start_row; i >= Search_Stop_Line+3 ; i--){
+        if(Left_Line[i] - Left_Line[i-3] > 2)//找到第一个左折点
+        {
+            leftnear_flag = FLAG_ON;
+            leftnear_row = i;
+            left_point = i;
+            break;
+        }
+    }
+
+    if(leftnear_flag == FLAG_ON){
+       //找到第二个左折点
+        if(leftnear_row<=(4+Search_Stop_Line))
+          leftnear_row=(4+Search_Stop_Line);
+        for(i = leftnear_row - 4; i >=Search_Stop_Line; i--)
+        {
+            if(Left_Line[i+3] - Left_Line[i] < -20)
+            {
+                leftfar_flag = FLAG_ON;
+                leftfar_row = i ;
+                break;
+            }
+        }
+
+        if(leftfar_flag == FLAG_ON)//如果前后的折点都找到，进行连线
+        {
+            for(i = leftnear_row; i >= leftfar_row; i--)
+            {
+                Left_Line[i] = (leftnear_row - i)*(Left_Line[leftfar_row] - Left_Line[leftnear_row])/(leftnear_row - leftfar_row)+Left_Line[leftnear_row];
+                if(Left_Line[i]<=0)
+                    Left_Line[i]=0;
+                 if(Left_Line[i]>=127)
+                     Left_Line[i]=127;
+            }
+        }
+
+   /*    else//只找到下方的左折点，强行补线
+        {
+            for(i = leftnear_row; i >= Search_Stop_Line; i--)
+            {
+                Left_Line[i] = (leftnear_row - i)*(Left_Line[leftnear_row] - Left_Line[63])/(63 - leftnear_row)+Left_Line[leftnear_row];
+                 if(Left_Line[i]<=0)
+                     Left_Line[i]=0;
+                 if(Left_Line[i]>=127)
+                     Left_Line[i]=127;
+            }
+        }*/
+    }
+
+
+
+    //右边界搜折点
+    for(i = start_row; i >= Search_Stop_Line+3; i--)
+    {
+        if(Right_Line[i] - Right_Line[i-3] < -2)//找到第一个右折点
+        {
+            rightnear_flag = FLAG_ON;
+            rightnear_row = i;
+            break;
+        }
+    }
+
+
+    if(rightnear_flag == FLAG_ON)
+    {
+        //找到第二个右折点
+      if( rightnear_row<= (4+Search_Stop_Line))
+         rightnear_row=(4+Search_Stop_Line);
+        for(i = rightnear_row - 4; i >= Search_Stop_Line; i--)
+        {
+            if(Right_Line[i+3] - Right_Line[i] > 20)
+            {
+                rightfar_flag = FLAG_ON;
+                rightfar_row = i ;
+                break;
+            }
+        }
+        if(rightfar_flag == FLAG_ON)//如果前后的折点都找到，进行连线
+        {
+            for(i = rightnear_row; i >= rightfar_row; i--)
+            {
+                Right_Line[i] = Right_Line[rightnear_row] - (rightnear_row - i)*(Right_Line[rightnear_row] - Right_Line[rightfar_row])/(rightnear_row - rightfar_row);
+                if(Right_Line[i]<=0)
+                    Right_Line[i]=0;
+                 if(Right_Line[i]>=127)
+                     Right_Line[i]=127;
+            }
+        }
+
+    /*  else//只找到下方的右折点，强行补线
+        {
+            for(i = rightnear_row; i >= Search_Stop_Line; i--)
+            {
+                Right_Line[i] = Right_Line[rightnear_row] - (rightnear_row - i)*(Right_Line[start_row] - Right_Line[rightnear_row])/(start_row - rightnear_row);
+                 if(Right_Line[i]<=0)
+                     Right_Line[i]=0;
+                 if(Right_Line[i]>=127)
+                     Right_Line[i]=127;
+            }
+        }*/
+    }
+}
+}
+
+
+
+
+void Correlation_get()//左右边界相关系数判定
+{
+  int i=0;
+  float sumx=0.0;
+  float sumy_l=0.0;
+  float sumy_r=0.0;
+  float avex=0.0;
+  float avey_l=0.0;
+  float avey_r=0.0;
+  float R1=0.0;
+  float R2=0.0;
+  float R3=0.0;
+  float R4=0.0;
+  float R5=0.0;
+  for(i = start_row; i >=end_row  ; i--)
+  {
+    sumx+=i*1.0;
+    sumy_l+=(127.0-Left_Line[i]*1.0);
+    sumy_r+=Right_Line[i]*1.0;
+  }
+  avex=sumx/(float)(start_row-end_row +1);
+  avey_l=sumy_l/(float)(start_row-end_row +1);
+  avey_r=sumy_r/(float)(start_row-end_row +1);
+  for(i = start_row; i >= end_row ;i--)
+  {
+    R1+=(i*1.0-avex)*(avey_l-(127.0-Left_Line[i]*1.0));
+    R2+=(i*1.0-avex)*(Right_Line[i]*1.0-avey_r);
+    R3+=pow((i*1.0-avex),2);
+    R4+=pow(((127.0-Left_Line[i]*1.0)-avey_l),2);
+    R5+=pow((Right_Line[i]*1.0-avey_r),2);
+  }
+  R3+=1.0;
+  R4+=1.0;
+  R5+=1.0;
+  left_Correlation=R1/sqrtf(R3*R4);
+  right_Correlation=R2/sqrtf(R3*R5);
 
 
 }
+
+
+
+
+
+
 
 
 

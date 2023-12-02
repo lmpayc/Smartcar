@@ -8,33 +8,38 @@
 #include"all_define.h"
 
 
+
+/******************************flash*************************************************/
+int data[data_number];
+uint32 Data[data_number];
+int x[data_number][5];
+int p[5];
+int state=WRITE;
+uint16 duty1 = 757;
+
+
+
 //参数表
  //开关状态变量
-extern uint8 key1_status;
-extern uint8 key2_status;
-extern uint8 key3_status;
-extern uint8 key4_status;
+uint8 key1_status;
+uint8 key2_status;
+uint8 key3_status;
+uint8 key4_status;
+uint8 key5_status;
 
 //上一次开关状态变量
-extern uint8 key1_last_status;
-extern uint8 key2_last_status;
-extern uint8 key3_last_status;
-extern uint8 key4_last_status;
+ uint8 key1_last_status;
+ uint8 key2_last_status;
+ uint8 key3_last_status;
+ uint8 key4_last_status;
+ uint8 key5_last_status;
 
 //开关标志位
-extern uint8 key1_flag;
-extern uint8 key2_flag;
-extern uint8 key3_flag;
-extern uint8 key4_flag;
-
-extern uint16 duty1;
-
-extern int data[data_number];
-extern uint32 Data[data_number];
-extern int x[data_number][5];
-extern int p[5];
-extern int state;
-
+ uint8 key1_flag;
+ uint8 key2_flag;
+ uint8 key3_flag;
+ uint8 key4_flag;
+ uint8 key5_flag;
 
 
 
@@ -46,14 +51,18 @@ void key_judge()            //开关状态判断
     key2_last_status = key2_status;
     key3_last_status = key3_status;
     key4_last_status = key4_status;
+    key5_last_status = key5_status;
     key1_status = gpio_get_level(KEY1);
     key2_status = gpio_get_level(KEY2);
     key3_status = gpio_get_level(KEY3);
     key4_status = gpio_get_level(KEY4);
+    key5_status = gpio_get_level(KEY5);
+
     if(key1_status && !key1_last_status)    key1_flag = 1;
     if(key2_status && !key2_last_status)    key2_flag = 1;
     if(key3_status && !key3_last_status)    key3_flag = 1;
     if(key4_status && !key4_last_status)    key4_flag = 1;
+    if(key5_status && !key5_last_status)    key5_flag = 1;
 }
 
 
@@ -69,13 +78,29 @@ void row_change(int *row,int *page)    //切换选择的行
     key_judge();
     if (*page>0)  //参数页
     {
-        if (key3_flag==1)       //key3上行
+        if (key3_flag==1)       //key3下行
         {
             key3_flag=0;
             *row+=1;
             tft180_clear();
 
         }
+
+
+        if (key5_flag==1)       //key5上行
+        {
+               key5_flag=0;
+               *row-=1;
+               tft180_clear();
+
+        }
+
+        if(*row<1){
+            *row=4;
+            tft180_clear();
+        }
+
+
         if(*row>4){
             *row=1;
             tft180_clear();
@@ -88,16 +113,16 @@ void page_change(int *page)    //切换选择的页
 {
 
     key_judge();
-    if (key1_flag==1)     //key1 page -1
+    if (key2_flag==1)     //key1 page -1
             {
-                key1_flag=0;
+                key2_flag=0;
                *page += 1;
                tft180_clear();
             }
 
-    if (key2_flag==1)     //key2 page -1
+    if (key1_flag==1)     //key2 page -1
                {
-                  key2_flag=0;
+                  key1_flag=0;
                   *page -= 1;
                   tft180_clear();
                }
@@ -263,7 +288,7 @@ void page_show(int page)
         tft180_show_string(10, 0, "par13:");
         tft180_show_string(10, 32, "par14:");
         tft180_show_string(10, 64, "par15:");
-        tft180_show_string(10, 96, "par16:");
+        tft180_show_string(10, 96, "Threshold:");
         for(i=0;i<4;i++)
           {
               show_int((page-1)*4+i, i*32);

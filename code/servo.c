@@ -7,26 +7,23 @@ uint16 delta_servo_pwm;
 
 void servo_output(){
 
-    float kp1;
-    float kd1;
+    float dir_kp1;
+    float dir_kd1;
 
-    kp1=(float)data[1]/10;
-    kd1=(float)data[2]/10;
-
-
-    delta_servo_pwm= (kp1*g_image_err+kd1*(g_image_err-g_iamge_last_err))+720;
+    dir_kp1=(float)data[1]/10;
+    dir_kd1=(float)data[2]/10;
 
 
+
+    /*直线和弯道两套PD*/
+    delta_servo_pwm= (dir_kp1*g_image_err+dir_kd1*(g_image_err-g_iamge_last_err))+825;   //ouput_pwm
     g_iamge_last_err=g_image_err;
 
-    if(delta_servo_pwm>820) delta_servo_pwm=820;
+    /*输出限幅*/
+    if(delta_servo_pwm>910) delta_servo_pwm=910;
+    if(delta_servo_pwm<730) delta_servo_pwm=730;
 
-    if(delta_servo_pwm<605) delta_servo_pwm=605;
+    /*入库出库判断*/
 
-    //tft180_show_int(0,110,delta_servo_pwm,3);
-
-  // pwm_set_duty(ATOM0_CH2_P21_4,delta_servo_pwm);
-    pwm_set_duty(ATOM0_CH1_P33_9,delta_servo_pwm);
-
-
+    pwm_set_duty(ATOM2_CH0_P00_9,delta_servo_pwm);
 }

@@ -83,24 +83,21 @@ int core0_main(void)
     // 此处编写用户代码 例如外设初始化代码等
 
 
-   tft180_set_dir(TFT180_CROSSWISE);    // 需要先横屏 不然显示不下
-
+    tft180_set_dir(TFT180_CROSSWISE);    // 需要先横屏 不然显示不下
     mt9v03x_init();
     tft180_init();
 
 
 
 
-    pwm_init( ATOM0_CH2_P21_4,50,710);
-    pwm_init( ATOM0_CH1_P33_9,50,710);
 
+    pwm_init( ATOM2_CH0_P00_9,50,820);
 
-
-    pwm_init( ATOM0_CH1_P21_3,17000,100);  //左轮
+    pwm_init( ATOM0_CH2_P21_4,17000,100);  //左轮
     pwm_init( ATOM0_CH3_P21_5,17000,100);
 
-    pwm_init( ATOM0_CH6_P02_6,17000,100);  //右轮
-    pwm_init( ATOM0_CH4_P02_4,17000,100);
+    pwm_init( ATOM3_CH4_P33_12,17000,100);  //右轮
+    pwm_init( ATOM3_CH5_P33_13,17000,100);
 
     pit_ms_init(CCU60_CH0,5);
     pit_ms_init(CCU60_CH1,30);
@@ -110,8 +107,7 @@ int core0_main(void)
     int flag=0;    //当前模式
 
     wireless_uart_init();
-//    encoder_dir_init(TIM6_ENCODER,TIM6_ENCODER_CH1_P20_3,TIM6_ENCODER_CH2_P20_0);  //左编码器
-//    encoder_dir_init(TIM2_ENCODER,TIM2_ENCODER_CH1_P33_7,TIM2_ENCODER_CH2_P33_6);   //有编码器
+
     EncoderInit();
 
     init_data();
@@ -123,23 +119,29 @@ int core0_main(void)
 	{
         // 此处编写需要循环执行的代码
 
-	    Vofa_2data(LEFT_SPEED,RIGHT_SPEED);
+	    Vofa_4data(LEFT_SPEED,RIGHT_SPEED,DISTANCE,0);
 
 
 	    if(!page){
-	      tft180_show_rgb565_image(0,bin_image_H/2+2, bin_image[0], bin_image_W,bin_image_H, bin_image_W, bin_image_H,0);
+	      //  tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W / 2, MT9V03X_H / 2, 0);
+	        tft180_show_rgb565_image(0,bin_image_H/2+2, bin_image[0], bin_image_W,bin_image_H, bin_image_W, bin_image_H,0);
 	      tft180_show_int(0,110,delta_servo_pwm,3);
-	      tft180_show_float(0,0 ,g_image_err,3,1);
+	    tft180_show_float(0,0 ,g_image_err,3,1);
+	    //  tft180_show_int(70,0,LOST_RIGHT_FLAG,3);
+	     // tft180_show_float(0,110 ,left_Correlation,3,2);
+	    //  tft180_show_float(50,110 ,right_Correlation,3,2);
 	    }
 
 
-	     page_show(page);
-	     change_int(page,row);  //页面显示
+
 	     page_change(&page);
-	     row_change(&row,&page);
-	          if(page){
-	          row_show(row);
-	          }
+
+	     if(page){
+	       page_show(page);
+	       change_int(page,row);  //页面显示
+	       row_change(&row,&page);
+	       row_show(row);
+	      }
 
 
 

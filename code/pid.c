@@ -31,21 +31,29 @@ void motor_speed_set(){   //速度闭环
 
     int32 left_set_speed=0;           //期待速度转换成的脉冲数
     int32 right_set_speed=0;
-    int spd_exp;
+    float spd_exp1;
 
 
     g_spd_p1=(float)data[5]/100;   //从扇区读入kp，ki，kd   //小数点后一位
     g_spd_i1=(float)data[6]/100;
     g_spd_d1=(float)data[7]/100;
-      /*g_spd_p2=temp_para.speed_kp2;   //第二套PID
-    g_spd_i2=temp_para.speed_ki2;
-    g_spd_d2=temp_para.speed_kd2;*/
-    spd_exp=(float)data[8]/10;
+      /*g_spd_p2=0;   //第二套PID
+    g_spd_i2=0;
+    g_spd_d2=0;*/
+    spd_exp1=(float)data[8]/10;    //不同赛道对应不同速度
 
     speed_get();
 
-    left_set_speed=(int32)(spd_exp*LEFT_1M_ENCODER*TIME_PER);
-    right_set_speed=(int32)(spd_exp*RIGHT_1M_ENCODER*TIME_PER);
+    /*直线加速,直线弯道交界处,特殊元素处理,弯道(差速表计算)对应不同的Kp,Ki,kd*/
+
+    left_set_speed=(int32)(spd_exp1*LEFT_1M_ENCODER*TIME_PER);
+    right_set_speed=(int32)(spd_exp1*RIGHT_1M_ENCODER*TIME_PER);
+
+
+
+
+
+
 
     g_left_spd_error[0]=(int32) (left_set_speed)-LEFT_SPEED_NUMBER;    //此时速度偏差
     g_right_spd_error[0]=(int32)(right_set_speed)-RIGHT_SPEED_NUMBER;
@@ -98,7 +106,7 @@ void motor_speed_set(){   //速度闭环
      }
 
      motor_output(g_left_spd_output,g_right_spd_output);
-  //  motor_output(data[0],data[0]);
+
 }
 
 
@@ -122,13 +130,11 @@ void motor_output(int32 lMotorDuty, int32 rMotorDuty){
      right_out2=5000-temp_right;
 
 
-    pwm_set_duty( ATOM0_CH1_P21_3,left_out1);
-    pwm_set_duty( ATOM0_CH3_P21_5,left_out2);//左电机控制
+    pwm_set_duty( ATOM0_CH3_P21_5,left_out1);
+    pwm_set_duty(ATOM0_CH2_P21_4 ,left_out2);//右电机控制
 
-
-
-    pwm_set_duty( ATOM0_CH6_P02_6,right_out1);
-    pwm_set_duty( ATOM0_CH4_P02_4,right_out2);//右电机控制
+    pwm_set_duty( ATOM3_CH5_P33_13,right_out1);
+    pwm_set_duty( ATOM3_CH4_P33_12,right_out2);//左电机控制
 
 
 
@@ -140,32 +146,4 @@ void motor_output(int32 lMotorDuty, int32 rMotorDuty){
 
 
 
-/*
 
-void servo_output(){
-
-    float kp;
-    float ki;
-    float kd;
-
-    kp=(float)data[1]/10;
-    ki=(float)data[2]/10;
-    kd=(float)data[3]/10;
-
-
-    delta_servo_pwm= (kp*g_image_err+kd*(g_image_err-g_iamge_last_err))+720;
-
-
-    g_iamge_last_err=g_image_err;
-
-    if(delta_servo_pwm>820) delta_servo_pwm=820;
-
-    if(delta_servo_pwm<605) delta_servo_pwm=605;
-
-    //tft180_show_int(0,110,delta_servo_pwm,3);
-
-  // pwm_set_duty(ATOM0_CH2_P21_4,delta_servo_pwm);
-    pwm_set_duty(ATOM0_CH1_P33_9,delta_servo_pwm);
-
-
-}*/

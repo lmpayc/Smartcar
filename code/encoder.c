@@ -17,8 +17,8 @@ float DISTANCE=0.0;               //Ğ¡³µ×ß¹ıµÄ¾àÀë
 
 
 void EncoderInit(void){
-    encoder_dir_init(TIM6_ENCODER,TIM6_ENCODER_CH1_P20_3,TIM6_ENCODER_CH2_P20_0);  //×ó±àÂëÆ÷
-    encoder_dir_init(TIM2_ENCODER,TIM2_ENCODER_CH1_P33_7,TIM2_ENCODER_CH2_P33_6);   //ÓĞ±àÂëÆ÷
+    encoder_dir_init(TIM6_ENCODER,TIM6_ENCODER_CH1_P20_3,TIM6_ENCODER_CH2_P20_0);  //ÓÒ±àÂëÆ÷
+    encoder_dir_init(TIM2_ENCODER,TIM2_ENCODER_CH1_P33_7,TIM2_ENCODER_CH2_P33_6);   //×ó±àÂëÆ÷
 
     encoder_clear_count(QTIMER_LEFT_PORT);   //¼ÆÊıÆ÷ÇåÁã
     encoder_clear_count(QTIMER_RIGHT_PORT);
@@ -32,8 +32,8 @@ void ReadEncoder(void){
     l_temp=0;
     r_temp=0;
 
-    l_temp=encoder_get_count(TIM6_ENCODER);    //¶Á×ó±àÂëÆ÷
-    r_temp=-encoder_get_count(TIM2_ENCODER);    //¶ÁÓÒ±àÂëÆ÷
+    l_temp=-encoder_get_count(TIM2_ENCODER);    //¶Á×ó±àÂëÆ÷
+    r_temp=encoder_get_count(TIM6_ENCODER);    //¶ÁÓÒ±àÂëÆ÷
 
     gl_EncoderInfo.lEncoderCount=l_temp-l_EncoderInfo.lEncoderCount;
     gl_EncoderInfo.rEncoderCount=r_temp-l_EncoderInfo.rEncoderCount;

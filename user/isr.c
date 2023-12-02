@@ -64,13 +64,11 @@ IFX_INTERRUPT(cc60_pit_ch1_isr, 0, CCU6_0_CH1_ISR_PRIORITY)
     otsu();   //大津法
     Pixle_Filter();  //图像降噪
     center_line=longest_white();   //最长白列搜索
+    all_judge();  //特殊元素判断
 
     get_edge();   //搜寻边界
     caluate_err();
     servo_output();
-
-
-
 
     pit_clear_flag(CCU60_CH1);
 

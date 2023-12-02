@@ -5,12 +5,12 @@
 #include "zf_common_headfile.h"
 #include "user_headfile.h"
 
-#define         QTIMER_LEFT_PHASEA   TIM6_ENCODER_CH1_P20_3     //CH1通道
-#define         QTIMER_LEFT_PHASEB   TIM6_ENCODER_CH2_P20_0        //CH2通道
-#define         QTIMER_LEFT_PORT     TIM6_ENCODER        //左编码器定时器
-#define         QTIMER_RIGHT_PHASEA  TIM2_ENCODER_CH1_P33_7
-#define         QTIMER_RIGHT_PHASEB  TIM2_ENCODER_CH2_P33_6
-#define         QTIMER_RIGHT_PORT     TIM2_ENCODER       //右编码器定时器
+#define         QTIMER_LEFT_PHASEA   TIM2_ENCODER_CH1_P33_7     //CH1通道
+#define         QTIMER_LEFT_PHASEB   TIM2_ENCODER_CH2_P33_6        //CH2通道
+#define         QTIMER_LEFT_PORT     TIM2_ENCODER        //左编码器定时器
+#define         QTIMER_RIGHT_PHASEA  TIM6_ENCODER_CH1_P20_3
+#define         QTIMER_RIGHT_PHASEB  TIM6_ENCODER_CH2_P20_0
+#define         QTIMER_RIGHT_PORT     TIM6_ENCODER       //右编码器定时器
 
 #define         TIME_PER  (0.005)   //5ms
 #define         RIGHT_1M_ENCODER  (11609)

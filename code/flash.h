@@ -4,6 +4,17 @@
 #include "all_define.h"
 #include "zf_common_headfile.h"
 
+/******************************flashÏà¹Ø*************************************************/
+extern int data[data_number];
+extern uint32 Data[data_number];
+extern int x[data_number][5];
+extern int p[5];//pwmÊä³ö
+extern int state;
+extern uint16 duty1 ;
+
+
+
+
 
 void key_judge();
 void save_int (int p,int r);
