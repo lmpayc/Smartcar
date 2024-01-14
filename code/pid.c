@@ -13,6 +13,9 @@ int32 g_left_spd_output=0;
 int32 g_right_spd_output=0;
 char uart_flag;
 
+
+
+
 int32 g_left_spd_output_p=0;
 int32 g_left_spd_output_i=0;
 int32 g_right_spd_output_p=0;
@@ -32,6 +35,7 @@ void motor_speed_set(){   //速度闭环
     int32 left_set_speed=0;           //期待速度转换成的脉冲数
     int32 right_set_speed=0;
     float spd_exp1;
+    float spd_exp2;
 
 
     g_spd_p1=(float)data[5]/100;   //从扇区读入kp，ki，kd   //小数点后一位
@@ -40,17 +44,28 @@ void motor_speed_set(){   //速度闭环
       /*g_spd_p2=0;   //第二套PID
     g_spd_i2=0;
     g_spd_d2=0;*/
+
+
+
     spd_exp1=(float)data[8]/10;    //不同赛道对应不同速度
+    spd_exp2=(float)data[9]/10;
+
 
     speed_get();
 
     /*直线加速,直线弯道交界处,特殊元素处理,弯道(差速表计算)对应不同的Kp,Ki,kd*/
 
+
+
     left_set_speed=(int32)(spd_exp1*LEFT_1M_ENCODER*TIME_PER);
     right_set_speed=(int32)(spd_exp1*RIGHT_1M_ENCODER*TIME_PER);
 
 
-
+    if(in_right_stock==FLAG_ON)
+          {
+           left_set_speed=0;
+           right_set_speed=0;
+          };
 
 
 
@@ -137,12 +152,7 @@ void motor_output(int32 lMotorDuty, int32 rMotorDuty){
     pwm_set_duty( ATOM3_CH4_P33_12,right_out2);//左电机控制
 
 
-
 }
-
-
-
-
 
 
 

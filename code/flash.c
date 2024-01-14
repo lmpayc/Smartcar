@@ -273,8 +273,8 @@ void page_show(int page)
     }
     else if (page == 3)
     {
-        tft180_show_string(10, 0, "spd_exp:");
-        tft180_show_string(10, 32, "par10:");
+        tft180_show_string(10, 0, "spd_exp1:");
+        tft180_show_string(10, 32, "spd_exp2:");
         tft180_show_string(10, 64, "par11:");
         tft180_show_string(10, 96, "par12:");
         for(i=0;i<4;i++)
@@ -286,9 +286,9 @@ void page_show(int page)
     else if (page == 4)
     {
         tft180_show_string(10, 0, "par13:");
-        tft180_show_string(10, 32, "par14:");
-        tft180_show_string(10, 64, "par15:");
-        tft180_show_string(10, 96, "Threshold:");
+        tft180_show_string(10, 32, "out_dir:");
+        tft180_show_string(10, 64, "pre_row:");
+        tft180_show_string(10, 96, "Thold:");
         for(i=0;i<4;i++)
           {
               show_int((page-1)*4+i, i*32);

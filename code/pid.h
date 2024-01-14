@@ -6,8 +6,8 @@
 #include "image_process.h"
 #include "user_headfile.h"
 
-//extern uint16 delta_servo_pwm;
-//extern float speed;
+
+
 
 #define I_THRESHOLD (9500)//积分限幅   4500
 #define S_THRESHOLD (10000)//输出限幅   5000
@@ -30,8 +30,6 @@ extern int32 g_right_spd_output_d;
 
 
 
-
-//void servo_output();
 void motor_output(int32 lMotorDuty, int32 rMotorDuty);
 void motor_speed_set();
 

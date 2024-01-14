@@ -6,6 +6,7 @@
 #include "all_define.h"
 #include "all_param.h"
 
+extern uint8 gray_image[bin_image_H][bin_image_W];    //压缩后的图像
 extern uint8  bin_image[bin_image_H][bin_image_W];  //二值化后数组
 
 extern  uint8 start_column ;    //理论最长白列最左列
@@ -40,6 +41,9 @@ extern float right_Correlation;
 extern uint8 Search_Stop_Line;
 
 
+extern uint8 left_point;    //十字转折点
+extern uint8 right_point;
+
 
 void Downsampling();
 int otsu();
@@ -53,7 +57,10 @@ void crossroad_pass();
 void Correlation_get();//左右边界相关系数判定
 unsigned char GetMedianNum(uint8 * bArray, uint8 iFilterLen);//获取中值
 void MedianFilter( uint8*line_pre,uint8 *line_now,uint8 Width);  //对中线滤波
-
 void centerline_change();//补中线
+void jump_point();//搜跳变点
+
+
+
 
 #endif

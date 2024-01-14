@@ -5,6 +5,9 @@
 #include "zf_common_headfile.h"
 #include "user_headfile.h"
 
+#define PER_TIME_ERR (0.005)
+
+
 
 /*所有状态*/
 extern uint8 CROSSROAD_FLAG;//十字检测标记
@@ -37,6 +40,7 @@ extern uint8 limit_left_island;
 extern uint8 limit_right_island;
 extern uint8 left_islandpass_flag;       //进入环岛识别（此时开始补线）
 extern uint8 right_islandpass_flag;
+extern uint8 island_cnt;
 
 /*出库入库*/
 extern uint8 OUT_STOCK_FLAG;
@@ -57,13 +61,23 @@ extern uint8 ZEBRA_FLAG;
 extern uint8 FIRST_ZEBRA_FLAG;
 
 
+extern float ANGLE;
+
+
 void all_judge();      //元素判断
+void get_angle();
+
+
+void out_stock();
+void zebra_cheak();
+
+
 void all_white_row_judge(void);
 void crossroad_pass_fsm();
 void lost_line_check();
 void island_judge();    //环岛检测
-void island_pass_fsm();
-
+void island_pass_fsm();   //环岛状态机
+void in_stock();//入库状态
 
 #endif
 
